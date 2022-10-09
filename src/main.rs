@@ -21,7 +21,7 @@ fn main() -> Result<()> {
     let args = Cli::parse();
     let path = args.path.to_str().unwrap();
 
-    info!(format!("Reading file {}", &path));
+    info!("Reading file {}", &path);
     let f = File::open(&path).with_context(|| format!("could not read file {}", &path))?;
     info!("Successfully read file!");
 
