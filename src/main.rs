@@ -1,10 +1,6 @@
 use anyhow::{Context, Result};
 use clap::Parser;
 use log::info;
-use std::fs::File;
-use std::io::prelude::*;
-use std::io::BufReader;
-use std::io::{self, Write};
 
 #[derive(Parser)]
 struct Cli {
@@ -19,27 +15,35 @@ fn main() -> Result<()> {
     info!("Starting up!");
 
     let args = Cli::parse();
-    let path = args.path.to_str().unwrap();
 
-    info!("Reading file {}", &path);
-    let f = File::open(&path).with_context(|| format!("could not read file {}", &path))?;
+    let content = std::fs::read_to_string(&args.path)
+        .with_context(|| format!("could not read file `{}`", args.path.display()))?;
     info!("Successfully read file!");
 
-    let reader = BufReader::new(f);
+    find_matches(&content, &args.pattern, &mut std::io::stdout())?;
 
-    let stdout = io::stdout();
-    let mut handle = io::BufWriter::new(stdout);
-
-    for line in reader.lines() {
-        let line = line.with_context(|| "cannot read line")?;
-
-        if line.contains(&args.pattern) {
-            writeln!(handle, "{}", &line)?;
-        }
-    }
-
-    handle.flush()?;
     info!("Done");
 
     Ok(())
+}
+
+fn find_matches(content: &str, pattern: &str, mut writer: impl std::io::Write) -> Result<()> {
+    for line in content.lines() {
+        if line.contains(pattern) {
+            writeln!(writer, "{}", line).with_context(|| "error while writing to buffer")?;
+        }
+    }
+
+    Ok(())
+}
+
+#[test]
+fn find_a_match() {
+    use std::vec::Vec;
+
+    let mut buf = Vec::new();
+    let result = find_matches("lorem ipsum\ndolor sit amet", "lorem", &mut buf);
+
+    assert!(result.is_ok());
+    assert_eq!(buf, b"lorem ipsum\n");
 }
