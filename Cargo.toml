@@ -1,5 +1,5 @@
 [package]
-name = "dariodip-grrs"
+name = "dariodip_grrs"
 version = "0.1.0"
 edition = "2021"
 authors = ["Dario Di Pasquale <darionovantadue@gmail.com>"]

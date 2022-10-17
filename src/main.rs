@@ -20,7 +20,7 @@ fn main() -> Result<()> {
         .with_context(|| format!("could not read file `{}`", args.path.display()))?;
     info!("Successfully read file!");
 
-    grrs::find_matches(&content, &args.pattern, &mut std::io::stdout())?;
+    dariodip_grrs::find_matches(&content, &args.pattern, &mut std::io::stdout())?;
 
     info!("Done");
 
